@@ -8,8 +8,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
-            Acessar conta
+            Crie sua conta
           </h1>
+          <p className="mt-3 text-md font-normal leading-normal text-zinc-500 dark:text-zinc-400">
+            Cadastre-se no quemvai.app e comece a planejar seu evento
+          </p>
         </div>
         <div className="mt-8">
           <form className="space-y-4">
@@ -108,9 +111,9 @@ export default function LoginPage() {
         </div>
         <div className="mt-8 text-center">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Não tem conta?{" "}
-            <Link href="/sign-up" className="underline hover:text-primary">
-              Cadastre-se
+            Já tem cadastro?{" "}
+            <Link href="/login" className="underline hover:text-primary">
+              Acesse sua conta
             </Link>
           </p>
           <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-500">
