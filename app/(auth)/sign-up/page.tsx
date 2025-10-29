@@ -1,10 +1,99 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import Toasts from "@/components/Toast";
 
-export default function LoginPage() {
+import { useRouter } from "next/navigation";
+
+export default function SignUpPage() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  type Toast = {
+    id: number;
+    text: string;
+    type?: "error" | "success";
+    closing?: boolean;
+  };
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const router = useRouter();
+
+  const pushToast = (text: string, type: Toast["type"] = "error") => {
+    const id = Date.now() + Math.random();
+    const newToast: Toast = { id, text, type, closing: false };
+    setToasts((prev) => [...prev, newToast]);
+
+    // schedule closing (after 3.5s) and removal (after 4s) to allow 0.5s exit animation
+    const closeTimer = window.setTimeout(() => {
+      setToasts((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, closing: true } : t))
+      );
+      window.setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, 500);
+    }, 3500);
+
+    // cleanup in case component unmounts before timers fire
+    // store timers on the toast object is overkill; here we just clear on unmount
+    // but to keep code compact we ignore explicit clearing per-toast
+    return () => {
+      clearTimeout(closeTimer);
+    };
+  };
+
+  const validateEmail = (value: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      pushToast("Nome é obrigatório.", "error");
+      return;
+    }
+    if (!validateEmail(email)) {
+      pushToast("Email inválido.", "error");
+      return;
+    }
+    if (password.length < 6) {
+      pushToast("Senha deve ter no mínimo 6 caracteres.", "error");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao criar conta (placeholder).");
+      }
+
+      const data = await res.json();
+      router.push("/dashboard");
+
+      console.log("placeholder response:", data);
+    } catch (err: any) {
+      pushToast(err?.message ?? "Erro desconhecido.", "error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background-light dark:bg-background-dark p-4 font-display group/design-root overflow-x-hidden">
+      {/* Toasts */}
+      <Toasts toasts={toasts} />
+
       <div className="w-full max-w-md">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
@@ -15,7 +104,7 @@ export default function LoginPage() {
           </p>
         </div>
         <div className="mt-8">
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <label className="flex flex-col">
               <p className="text-sm font-medium leading-normal pb-2 text-zinc-700 dark:text-zinc-300">
                 Nome
@@ -25,7 +114,8 @@ export default function LoginPage() {
                   className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-zinc-300 bg-white py-3 px-4 text-zinc-900 placeholder:text-zinc-400 focus:border-primary focus:outline-0 focus:ring-2 focus:ring-primary/20 dark:border-zinc-700/50 dark:bg-[#1a3636] dark:text-[#a8d6d6] dark:placeholder:text-zinc-500"
                   placeholder="Digite seu nome"
                   type="text"
-                  defaultValue=""
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
             </label>
@@ -38,7 +128,8 @@ export default function LoginPage() {
                   className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-zinc-300 bg-white py-3 px-4 text-zinc-900 placeholder:text-zinc-400 focus:border-primary focus:outline-0 focus:ring-2 focus:ring-primary/20 dark:border-zinc-700/50 dark:bg-[#1a3636] dark:text-[#a8d6d6] dark:placeholder:text-zinc-500"
                   placeholder="seuemail@exemplo.com"
                   type="email"
-                  defaultValue=""
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </label>
@@ -50,24 +141,32 @@ export default function LoginPage() {
                 <input
                   className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-zinc-300 bg-white py-3 pr-12 pl-4 text-zinc-900 placeholder:text-zinc-400 focus:border-primary focus:outline-0 focus:ring-2 focus:ring-primary/20 dark:border-zinc-700/50 dark:bg-[#1a3636] dark:text-[#a8d6d6] dark:placeholder:text-zinc-500"
                   placeholder="Digite sua senha"
-                  type="password"
-                  defaultValue=""
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   className="absolute right-4 text-zinc-400 dark:text-zinc-500 hover:text-primary"
                   type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-label={showPassword ? "Esconder senha" : "Mostrar senha"}
                 >
                   <EyeIcon className="h-6 w-6 text-white hover:opacity-80" />
                 </button>
               </div>
             </label>
             <div className="pt-4">
-              <button className="flex h-12 w-full items-center justify-center cursor-pointer rounded-lg bg-primary px-6 text-base font-bold text-black shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 dark:focus:ring-offset-background-dark">
-                Criar conta
+              <button
+                className="flex h-12 w-full items-center justify-center cursor-pointer rounded-lg bg-primary px-6 text-base font-bold text-black shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 dark:focus:ring-offset-background-dark disabled:opacity-50"
+                disabled={submitting}
+                type="submit"
+              >
+                {submitting ? "Aguarde..." : "Criar conta"}
               </button>
             </div>
           </form>
         </div>
+
         <div className="relative my-6">
           <div
             aria-hidden="true"
@@ -81,6 +180,7 @@ export default function LoginPage() {
             </span>
           </div>
         </div>
+
         <div className="grid grid-cols-1 gap-3">
           <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-zinc-300 bg-white px-6 text-sm font-semibold text-zinc-900 shadow-sm transition-all hover:bg-zinc-100/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800/50 dark:focus:ring-offset-background-dark">
             <svg
@@ -109,6 +209,7 @@ export default function LoginPage() {
             Acessar com Google
           </button>
         </div>
+
         <div className="mt-8 text-center">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Já tem cadastro?{" "}

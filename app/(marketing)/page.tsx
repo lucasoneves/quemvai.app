@@ -23,7 +23,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 className="px-4 py-2 text-sm font-bold bg-[#0df2f2] text-[#102222] rounded-full hover:bg-primary/80 transition-colors"
-                href="/signup"
+                href="/sign-up"
               >
                 Começar Grátis
               </Link>
