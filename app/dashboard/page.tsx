@@ -10,17 +10,15 @@ import Link from "next/link";
 export default function EventDetailPage() {
   return (
     <>
-      <div className="max-w-4xl mx-auto p-4 relative flex min-h-screen w-full flex-col dark group/design-root overflow-x-hidden pb-24">
+      <div className="max-w-4xl mx-auto p-4 relative flex min-h-screen w-full flex-col dark pb-24">
         <header className="sticky top-0 z-10 bg-background-light dark:bg-background-dark/80 backdrop-blur-sm">
-          <div className="flex items-center p-4 pb-2 justify-between">
+          <div className="flex items-center py-4 pb-2 justify-between">
             <div className="flex size-12 shrink-0 items-center justify-start text-primary">
               <span className="material-symbols-outlined text-2xl font-bold">
                 quemvai.app
               </span>
             </div>
-            <h1 className="text-text-primary-dark text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
-              Meus Eventos
-            </h1>
+
             <div className="flex w-12 items-center justify-end">
               <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-surface-dark text-text-primary-dark">
                 <UserCircleIcon className="h-5 w-5" />
@@ -29,6 +27,7 @@ export default function EventDetailPage() {
           </div>
         </header>
         <main className="flex flex-col gap-6 py-4 h-max">
+          <h1 className="text-lg font-bold text-left">Meus Eventos</h1>
           <form>
             <label className="flex flex-col min-w-40 h-12 w-full">
               <div className="flex w-full flex-1 items-stretch rounded-xl h-full">
@@ -44,10 +43,10 @@ export default function EventDetailPage() {
               </div>
             </label>
           </form>
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
               href="/dashboard/event/1"
-              className="flex flex-col gap-2 rounded-xl bg-surface-dark p-4"
+              className="flex flex-col gap-2 w-full rounded-xl bg-surface-dark p-4"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-2 flex-1">
